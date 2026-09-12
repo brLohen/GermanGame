@@ -1,4 +1,5 @@
 import sqlite3
+import csv
 
 class Translator:
     starter = sqlite3.connect("dictionary-de.db")
@@ -16,12 +17,23 @@ class Translator:
         syn = self.syn
         meaning = syn.execute(f"SELECT word FROM senses WHERE gloss ='{w}'")
         return meaning.fetchone()[0]
-    
+
+    def artikle(self, w: str):
+        w = w.capitalize()
+        with open('nouns.csv', encoding= 'utf-8') as nouns:
+                csv_f = csv.DictReader(nouns)
+                genus = [(row['genus']) for row in csv_f if (row['lemma']) == w]
+                match genus[0]:
+                     case 'n':
+                          return 'das' + ' ' + w
+                     case 'f':
+                          return 'die' + ' ' + w
+                     case 'm':
+                          return 'der' + ' ' + w
 
 def main():
     word = Translator()
-    print(word.de_to_en(input("Ger Word: ")))
-    print(word.en_to_de(input("Eng Word: ")))
+    print(word.artikle(input('write a word: ')))
 
 
 if __name__ == "__main__":
