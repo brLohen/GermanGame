@@ -1,40 +1,67 @@
 import sqlite3
 import csv
+import random
 
 class Translator:
-    starter = sqlite3.connect("dictionary-de.db")
-    syn = starter.cursor()
 
-    def __init__(self):
-        pass
+    def __init__(self, w: str):
+        self.w = w
+        self.starter = sqlite3.connect("dictionary-de.db")
+        self.syn = self.starter.cursor()
 
-    def de_to_en(self, w: str):
+    def de_to_en(self):
         syn = self.syn
-        meaning = syn.execute(f"SELECT gloss FROM senses WHERE word = '{w}' AND sort_order = 0")
-        return meaning.fetchone()[0]
+        meaning = syn.execute("SELECT gloss FROM senses WHERE word = ?", (self.w,))
+        des = meaning.fetchall()
+        if not des:
+            return 'no word found :('
+        for _ in des:
+            print(_[0])
 
-    def en_to_de(self, w: str):
+    def en_to_de(self):
         syn = self.syn
-        meaning = syn.execute(f"SELECT word FROM senses WHERE gloss ='{w}'")
-        return meaning.fetchone()[0]
+        meaning = syn.execute("SELECT word FROM senses WHERE gloss = ? ", (self.w,))
+        des = meaning.fetchall()
+        if not des:
+            return 'no word found :('
+        for _ in des:
+            print(_[0])
 
-    def artikle(self, w: str):
-        w = w.capitalize()
+    def artikle(self):
+        w = self.w.capitalize()
         with open('nouns.csv', encoding= 'utf-8') as nouns:
-                csv_f = csv.DictReader(nouns)
-                genus = [(row['genus']) for row in csv_f if (row['lemma']) == w]
+            csv_f = csv.DictReader(nouns)
+            genus = [(row['genus']) for row in csv_f if (row['lemma']) == w]
+            try:
                 match genus[0]:
-                     case 'n':
-                          return 'das' + ' ' + w
-                     case 'f':
-                          return 'die' + ' ' + w
-                     case 'm':
-                          return 'der' + ' ' + w
+                    case 'n':
+                        return 'das' + ' ' + w
+                    case 'f':
+                        return 'die' + ' ' + w
+                    case 'm':
+                        return 'der' + ' ' + w
+            except IndexError:
+                return ('Word not found :( ')
+
+
+    def plural(self):
+        w = self.w.capitalize()
+        with open('nouns.csv', encoding= 'utf-8') as nouns:
+            csv_f = csv.DictReader(nouns)
+            plural = [row['nominativ plural'] for row in csv_f if (row['lemma'])== w]
+            if not plural:
+                return 'No word found :('
+            return ', '.join(plural) 
+
+        
 
 def main():
-    word = Translator()
-    print(word.artikle(input('write a word: ')))
+    word = Translator('bkk')
+        
 
+def get_text():
+    ...
+    
 
 if __name__ == "__main__":
     main()
