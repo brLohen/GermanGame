@@ -56,12 +56,10 @@ class Translator:
         
 
 def main():
-    word = Translator('bkk')
-        
-
-def get_text():
-    ...
-    
+    user = input('Give me a word in Deutsch: ')
+    word = Translator(user)
+    word.de_to_en()
+    print(f'Article: {word.artikle()}\nPlural: {word.plural()}')
 
 if __name__ == "__main__":
     main()
