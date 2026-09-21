@@ -56,10 +56,26 @@ class Translator:
         
 
 def main():
-    user = input('Give me a word in Deutsch: ')
-    word = Translator(user)
-    word.de_to_en()
-    print(f'Article: {word.artikle()}\nPlural: {word.plural()}')
+    connection = sqlite3.connect("dictionary-de.db")
+    word_all = connection.cursor()
+    word_get = word_all.execute("SELECT word FROM SENSES WHERE pos = 'noun' ")
+    word = random.choice(word_get.fetchall())[0]
+    diction = Translator(word)
+    ask = input('Wanna know the word of the day? if yes, type yes:  ').capitalize()
+    if ask.startswith('Ye'):
+        print(f"Word: {word}\nPlural: {diction.plural()}\nArticle: {diction.artikle()}")
+        print("..................meaning....................")
+        diction.de_to_en()
+    else:
+        ask_again = input('Wanna search a word? ').capitalize()
+        if ask_again.startswith('Ye'):
+            find_meaning = input('What word do you wan to know about? ')
+            find_meaning = Translator(find_meaning)
+            en_or_de = input('Is the word English or German? ').capitalize()
+            if en_or_de == 'English':
+                find_meaning.en_to_de()
+            else:
+                find_meaning.de_to_en()
 
 if __name__ == "__main__":
     main()
